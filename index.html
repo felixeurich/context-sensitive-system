@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<link rel="stylesheet" href="style.css">
+	<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/5.1.1/math.js"></script>
+	<script src="bower_components/requirejs/require.js"></script>
+	<script src="js/jactivity.js"></script>
+	<script src="js/deviceorientation.js"></script>
+	<script src="js/transformer.js"></script>
+	<script src="js/decisiontree_engine.js"></script>
+</head>
+
+<form>
+	<div class="grid-container">
+
+		<div class="grid-item">
+			<b>Record:</b>
+		</div>
+
+		<div class="grid-item">
+			<label class="switch">
+			<input type="checkbox" id="record">
+			<span class="slider round"></span>
+		</label>
+		</div>
+
+		<div class="grid-item">
+			<b>Label:</b>
+		</div>
+
+		<div class="grid-item">
+			<select id="label"><br>
+			<option value="testing">Testing</option>
+			<option value="walking">Walking</option>
+			<option value="standing">Standing</option>
+			<option value="sitting">Sitting</option>
+		</select>
+		</div>
+
+		<div class="grid-item">
+			<b>Subject:</b>
+		</div>
+
+		<div class="grid-item">
+			<input type="text" id="subject">
+		</div>
+		</div>
+
+		<p id="activity">Current activity: undefined</p>
+		<p id="debug">Not recording.</p>
+
+		<div class="main">
+			<h2 id="header">(Timestamp, Label)</h2>
+			<table>
+				<tr>
+					<td>alpha (rotation)</td>
+					<td id="alpha"></td>
+				</tr>
+				<tr>
+					<td>beta (rotation)</td>
+					<td id="beta"></td>
+				</tr>
+				<tr>
+					<td>gamma (rotation)</td>
+					<td id="gamma"></td>
+				</tr>
+				<tr>
+					<td>x (acceleration)</td>
+					<td id="x"></td>
+				</tr>
+				<tr>
+					<td>y (acceleration)</td>
+					<td id="y"></td>
+				</tr>
+				<tr>
+					<td>z (acceleration)</td>
+					<td id="z"></td>
+				</tr>
+			</table>
+		</div>
+</form>
+
+<script type="text/javascript">
+	// Site refresh interval
+	setInterval(function() {
+		console.log("refresh");
+	}, 3000);
+
+	//Initialize subject field with random string
+	document.getElementById("subject").value = Math.floor((1 + Math.random()) * 0x10000).toString(16)
+
+	//Wrapper for values (n: Number of values from deviceorientation - k: Number of values from devicemotion)
+	function Values() {
+		return {
+			alpha: [],
+			beta: [],
+			gamma: [],
+			acc_x: [],
+			acc_y: [],
+			acc_z: [],
+			n: 0
+			k: 0
+		}
+	};
+
+	// Global variables to store current values.
+	var currentDataPoint;
+	currentDataPoint = new Values();
+
+	// Measurement ID is the UNIX timestamp when recording is started.
+	var measurement_label = "";
+
+	// How many data points have been recorded/uploaded so far?
+	var data_count = 0;
+
+	// How many data points are uploaded per second?
+	var UPLOAD_RATE = 20;
+
+	// Global var for setInterval setting/clearing.
+	var interval;
+	var noWrite = function() {}
+	var write = noWrite()
+	var writePoint = function() {
+		noWrite()
+	}
+
+
+	// bind stop and start uploading to toggle switch
+	document.getElementById('record').onchange = function() {
+		if (this.checked) {
+			label = document.getElementById("label").value;
+			subject = document.getElementById("subject").value;
+			writePoint = function() {
+				write()
+			}
+
+			if (label) {
+				console.log("start recording");
+
+				//Date.now() return the millis since 1970
+				// greatest integer which is smaller than Date.now()/1000
+				measurement_label = Math.floor(Date.now() / 1000) + "";
+				document.getElementById("debug").innerHTML = "Recording... (" + data_count + ")";
+
+				//reset old intervall if set
+				clearInterval(interval);
+				//call recordDataPoint every X millis
+				interval = setInterval(recordDataPoint, 1000 / UPLOAD_RATE);
+			} else {
+				this.checked = false;
+				document.getElementById("debug").innerHTML = "Choose label first."
+			}
+		} else {
+			console.log("stop recording");
+			window.clearInterval(interval);
+			//setInterval(1);
+			writePoint = noWrite();
+			document.getElementById("debug").innerHTML = "Not recording."
+			data_count = 0;
+
+			//reset
+			document.getElementById("header").innerHTML = "(Timestamp, Label)";
+			document.getElementById("alpha").innerHTML = "null";
+			document.getElementById("beta").innerHTML = "null";
+			document.getElementById("gamma").innerHTML = "null";
+			document.getElementById("x").innerHTML = "null";
+			document.getElementById("y").innerHTML = "null";
+			document.getElementById("z").innerHTML = "null";
+		}
+	}
+
+	// Callled every X millis, when record is switched on
+	function recordDataPoint() {
+		if (document.getElementById('record').checked) {
+			writePoint();
+		} else {
+			// Do nothing if record switch is off.
+		}
+	}
+
+	//Bind deviceorientation
+	if (window.DeviceOrientationEvent) {
+		console.log("Bind deviceorientation event");
+		window.addEventListener('deviceorientation', function(evt) {
+			//rotation z-axis
+			currentDataPoint.alpha.push(evt.alpha);
+			//front-back motion
+			currentDataPoint.beta.push(evt.beta);
+			//left to right
+			currentDataPoint.gamma.push(evt.gamma);
+			currentDataPoint.n++;
+		}, false);
+	} else {
+		document.getElementById("debug").innerHTML = "DeviceorientationEvent Not supported."
+	}
+
+	//Bind devicemotion
+	if (window.DeviceMotionEvent) {
+		console.log("Bind deviceorientation event");
+		window.addEventListener('devicemotion', function(event) {
+			//Beschleunigung x-axis (West -> East)
+			currentDataPoint.acc_x.push(event.acceleration.x);
+			//Beschleunigung y-axis (South -> North)
+			currentDataPoint.acc_y.push(event.acceleration.y);
+			//Beschleunigung z-axis
+			currentDataPoint.acc_z.push(event.acceleration.z);
+			currentDataPoint.k++;
+		}, false);
+	} else {
+		document.getElementById("debug").innerHTML = "DeviceMotionEvent Not supported."
+	}
+
+	// Function to write a single datapoint to the database.
+	require(["bower_components/influent/dist/influent.js"], function(influent) {
+
+		//Define connection to influx db
+		influent
+			.createHttpClient({
+				server: [{
+					protocol: "http",
+					host: "192.168.0.192",
+					port: 8086
+				}],
+				username: "css18",
+				password: "css18",
+
+				database: "training"
+			})
+			.then(function(client) {
+				write = function() {
+					console.log("Write current data point into db. Motion values: " + currentDataPoint.k + " Orientation values: " + currentDataPoint.n);
+					if (c.n > 0) {
+						data_count++;
+
+
+						label = document.getElementById("label").value;
+						subject = document.getElementById("subject").value;
+
+						// Set debug fields.
+						document.getElementById("header").innerHTML = "(" + measurement_label + ", " + label + ")";
+						document.getElementById("alpha").innerHTML = c.alpha;
+						document.getElementById("beta").innerHTML = c.beta;
+						document.getElementById("gamma").innerHTML = c.gamma;
+						document.getElementById("x").innerHTML = c.acc_x;
+						document.getElementById("y").innerHTML = c.acc_y;
+						document.getElementById("z").innerHTML = c.acc_z;
+
+						var c0 = c;
+						currentDataPoint = new Values();
+						client.write({
+								key: "orientation",
+								tags: {
+									label: label,
+									subject: subject
+								},
+								fields: {
+									count: data_count,
+									gamma: mean(c0.gamma),
+									beta: mean(c0.beta),
+									alpha: mean(c0.alpha),
+								},
+								timestamp: (Date.now() * 1000000)
+							})
+							.then(function() {
+								console.log("successfully wrote to db");
+								document.getElementById("debug").innerHTML = "Recorded... (" + data_count + ")";
+							});
+					}
+				}
+			})
+	})
+
+	function mean(values) {
+		var sum = values.reduce(function(a, b) {
+			return a + b;
+		});
+		return Math.floor(sum * 1000 / values.length);
+	}
+</script>
+
+
+<script>
+	var activityCallback = function(activity) {
+		console.log("react to classification which classify to: " + activity.result);
+		document.getElementById("activity").innerHTML = "Current activity: " + activity.result;
+		switch (activity.result) {
+			case "walking":
+				document.body.style.fontSize = "1.2em";
+				document.getElementById("activity").style.color = "red";
+				break;
+			case "standing":
+				document.body.style.fontSize = "1.0em";
+				document.getElementById("activity").style.color = "green";
+				break;
+			case "sitting":
+				document.body.style.fontSize = "1.0em";
+				document.getElementById("activity").style.color = "blue";
+				break;
+			default:
+				document.body.style.fontSize = "1.0em";
+				document.getElementById("activity").style.color = "black";
+		}
+	}
+
+	var activityClassifier = new jActivity("", [deviceorientation], activityCallback, ["walking", "standing", "sitting"], 1000);
+</script>
+
+</html>
+
+<head>
+	<script>
+		var influx;
+		requirejs(["bower_components/influent/dist/influent"], function(influent) {
+			influx = influent;
+		})
+	</script>
+</head>
+
+<body>
+	test7
+</body>
+
+</html>
