@@ -8,6 +8,7 @@
 	<script src="bower_components/requirejs/require.js"></script>
 	<script src="js/jactivity.js"></script>
 	<script src="js/deviceorientation.js"></script>
+	<script src="js/devicemotion.js"></script>
 	<script src="js/transformer.js"></script>
 	<script src="js/decisiontree_engine.js"></script>
 </head>
@@ -51,42 +52,67 @@
 		<p id="activity">Current activity: undefined</p>
 		<p id="debug">Not recording.</p>
 
-		<div class="main">
-			<h2 id="header">(Timestamp, Label)</h2>
-			<table>
-				<tr>
-					<td>alpha (rotation)</td>
-					<td id="alpha"></td>
-				</tr>
-				<tr>
-					<td>beta (rotation)</td>
-					<td id="beta"></td>
-				</tr>
-				<tr>
-					<td>gamma (rotation)</td>
-					<td id="gamma"></td>
-				</tr>
-				<tr>
-					<td>x (acceleration)</td>
-					<td id="x"></td>
-				</tr>
-				<tr>
-					<td>y (acceleration)</td>
-					<td id="y"></td>
-				</tr>
-				<tr>
-					<td>z (acceleration)</td>
-					<td id="z"></td>
-				</tr>
-			</table>
+
+		<h3 id="header">(Timestamp, Label)</h3>
+		<div class="grid-item">
+			<b>rotation</b>
+		</div>
+		<div class="grid-item">
+		</div>
+
+		<div class="grid-container">
+			<div class="grid-item">
+				alpha:
+			</div>
+			<div class="grid-item">
+				<p id="alpha"></p>
+			</div>
+
+			<div class="grid-item">
+				beta:
+			</div>
+			<div class="grid-item">
+				<p id="beta"></p>
+			</div>
+
+			<div class="grid-item">
+				gamma:
+			</div>
+			<div class="grid-item">
+				<p id="gamma"></p>
+			</div>
+
+			<div class="grid-item">
+				<b>acceleration</b>
+			</div>
+			<div class="grid-item"> </div>
+
+			<div class="grid-item">
+				x:
+			</div>
+			<div class="grid-item">
+				<p id="x"></p>
+			</div>
+
+			<div class="grid-item">
+				y:
+			</div>
+			<div class="grid-item">
+				<p id="y"></p>
+			</div>
+
+			<div class="grid-item">
+				z:
+			</div>
+			<div class="grid-item">
+				<p id="z"></p>
+			</div>
 		</div>
 </form>
 
 <script type="text/javascript">
 	// Site refresh interval
-	setInterval(function() {
-		console.log("refresh");
-	}, 3000);
+	setInterval(function() {}, 2000);
 
 	//Initialize subject field with random string
 	document.getElementById("subject").value = Math.floor((1 + Math.random()) * 0x10000).toString(16)
@@ -100,7 +126,7 @@
 			acc_x: [],
 			acc_y: [],
 			acc_z: [],
-			n: 0
+			n: 0,
 			k: 0
 		}
 	};
@@ -174,6 +200,7 @@
 	// Callled every X millis, when record is switched on
 	function recordDataPoint() {
 		if (document.getElementById('record').checked) {
+			console.log("record datapoint");
 			writePoint();
 		} else {
 			// Do nothing if record switch is off.
@@ -214,7 +241,6 @@
 
 	// Function to write a single datapoint to the database.
 	require(["bower_components/influent/dist/influent.js"], function(influent) {
-
 		//Define connection to influx db
 		influent
 			.createHttpClient({
@@ -226,12 +252,12 @@
 				username: "css18",
 				password: "css18",
 
-				database: "training"
+				database: "training2"
 			})
 			.then(function(client) {
 				write = function() {
-					console.log("Write current data point into db. Motion values: " + currentDataPoint.k + " Orientation values: " + currentDataPoint.n);
-					if (c.n > 0) {
+					if (currentDataPoint.n > 0 || currentDataPoint.k > 0) {
+						console.log("Write current data point into db. Motion values: " + currentDataPoint.k + " Orientation values: " + currentDataPoint.n);
 						data_count++;
 
 
@@ -240,14 +266,14 @@
 
 						// Set debug fields.
 						document.getElementById("header").innerHTML = "(" + measurement_label + ", " + label + ")";
-						document.getElementById("alpha").innerHTML = c.alpha;
-						document.getElementById("beta").innerHTML = c.beta;
-						document.getElementById("gamma").innerHTML = c.gamma;
-						document.getElementById("x").innerHTML = c.acc_x;
-						document.getElementById("y").innerHTML = c.acc_y;
-						document.getElementById("z").innerHTML = c.acc_z;
+						document.getElementById("alpha").innerHTML = currentDataPoint.alpha.length + " values";
+						document.getElementById("beta").innerHTML = currentDataPoint.beta.length + " values";
+						document.getElementById("gamma").innerHTML = currentDataPoint.gamma.length + " values";
+						document.getElementById("x").innerHTML = currentDataPoint.acc_x.length + " values";
+						document.getElementById("y").innerHTML = currentDataPoint.acc_y.length + " values";
+						document.getElementById("z").innerHTML = currentDataPoint.acc_z.length + " values";
 
-						var c0 = c;
+						var c0 = currentDataPoint;
 						currentDataPoint = new Values();
 						client.write({
 								key: "orientation",
@@ -256,10 +282,15 @@
 									subject: subject
 								},
 								fields: {
-									count: data_count,
+									cnt_orient: c0.n,
+									cnt_mot: c0.k,
 									gamma: mean(c0.gamma),
 									beta: mean(c0.beta),
 									alpha: mean(c0.alpha),
+									acc_x: mean(c0.acc_x),
+									acc_y: mean(c0.acc_y),
+									acc_z: mean(c0.acc_z)
+
 								},
 								timestamp: (Date.now() * 1000000)
 							})
@@ -273,10 +304,13 @@
 	})
 
 	function mean(values) {
-		var sum = values.reduce(function(a, b) {
-			return a + b;
-		});
-		return Math.floor(sum * 1000 / values.length);
+		if (values.length > 0) {
+			var sum = values.reduce(function(a, b) {
+				return a + b;
+			});
+			return Math.floor(sum * 1000 / values.length);
+		}
+		return 0;
 	}
 </script>
 
@@ -287,39 +321,27 @@
 		document.getElementById("activity").innerHTML = "Current activity: " + activity.result;
 		switch (activity.result) {
 			case "walking":
-				document.body.style.fontSize = "1.2em";
+				document.getElementById("activity").style.fontSize = "1.4em";
+				document.getElementById("activity").style.fontWeight = "bold";
 				document.getElementById("activity").style.color = "red";
 				break;
 			case "standing":
-				document.body.style.fontSize = "1.0em";
+				document.getElementById("activity").style.fontSize = "1.0em";
 				document.getElementById("activity").style.color = "green";
 				break;
 			case "sitting":
-				document.body.style.fontSize = "1.0em";
+				document.getElementById("activity").style.fontSize = "1.0em";
+				document.getElementById("activity").style.fontWeight = "normal";
 				document.getElementById("activity").style.color = "blue";
 				break;
 			default:
-				document.body.style.fontSize = "1.0em";
+				document.getElementById("activity").style.fontSize = "1.0em";
+				document.getElementById("activity").style.fontWeight = "normal";
 				document.getElementById("activity").style.color = "black";
 		}
 	}
 
-	var activityClassifier = new jActivity("", [deviceorientation], activityCallback, ["walking", "standing", "sitting"], 1000);
+	var activityClassifier = new jActivity("", [deviceorientation, devicemotion], activityCallback, ["walking", "standing", "sitting"], 1000);
 </script>
-
-</html>
-
-<head>
-	<script>
-		var influx;
-		requirejs(["bower_components/influent/dist/influent"], function(influent) {
-			influx = influent;
-		})
-	</script>
-</head>
-
-<body>
-	test7
-</body>
 
 </html>
