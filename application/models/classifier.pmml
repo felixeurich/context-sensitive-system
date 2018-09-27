@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+<PMML version="4.3" xmlns="http://www.dmg.org/PMML-4_3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dmg.org/PMML-4_3 http://www.dmg.org/pmml/v4-3/pmml-4-3.xsd">
+ <Header copyright="Copyright (c) 2018 fe" description="RPart Decision Tree Model">
+  <Extension name="user" value="fe" extender="Rattle/PMML"/>
+  <Application name="Rattle/PMML" version="1.4"/>
+  <Timestamp>2018-09-27 13:54:06</Timestamp>
+ </Header>
+ <DataDictionary numberOfFields="6">
+  <DataField name=".outcome" optype="categorical" dataType="string">
+   <Value value="sitting"/>
+   <Value value="walking"/>
+  </DataField>
+  <DataField name="alpha" optype="continuous" dataType="double"/>
+  <DataField name="acc_mean" optype="continuous" dataType="double"/>
+  <DataField name="acc_sd" optype="continuous" dataType="double"/>
+  <DataField name="acc_x" optype="continuous" dataType="double"/>
+  <DataField name="beta" optype="continuous" dataType="double"/>
+ </DataDictionary>
+ <TreeModel modelName="RPart_Model" functionName="classification" algorithmName="rpart" splitCharacteristic="binarySplit" missingValueStrategy="defaultChild" noTrueChildStrategy="returnLastPrediction">
+  <MiningSchema>
+   <MiningField name=".outcome" usageType="predicted" invalidValueTreatment="returnInvalid"/>
+   <MiningField name="alpha" usageType="active" invalidValueTreatment="returnInvalid"/>
+   <MiningField name="acc_mean" usageType="active" invalidValueTreatment="returnInvalid"/>
+   <MiningField name="acc_sd" usageType="active" invalidValueTreatment="returnInvalid"/>
+   <MiningField name="acc_x" usageType="active" invalidValueTreatment="returnInvalid"/>
+   <MiningField name="beta" usageType="active" invalidValueTreatment="returnInvalid"/>
+  </MiningSchema>
+  <Output>
+   <OutputField name="Predicted_.outcome" optype="categorical" dataType="string" feature="predictedValue"/>
+   <OutputField name="Probability_sitting" optype="continuous" dataType="double" feature="probability" value="sitting"/>
+   <OutputField name="Probability_walking" optype="continuous" dataType="double" feature="probability" value="walking"/>
+  </Output>
+  <Node id="1" score="sitting" recordCount="2777" defaultChild="3">
+   <True/>
+   <ScoreDistribution value="sitting" recordCount="1514" confidence="0.545192653943104"/>
+   <ScoreDistribution value="walking" recordCount="1263" confidence="0.454807346056896"/>
+   <Node id="2" score="sitting" recordCount="871">
+    <CompoundPredicate booleanOperator="surrogate">
+     <SimplePredicate field="acc_mean" operator="lessThan" value="705.875"/>
+     <SimplePredicate field="acc_sd" operator="lessThan" value="336.138039401854"/>
+     <SimplePredicate field="alpha" operator="lessThan" value="14991.625"/>
+     <SimplePredicate field="beta" operator="lessThan" value="3432.45"/>
+    </CompoundPredicate>
+    <ScoreDistribution value="sitting" recordCount="783" confidence="0.898966704936854"/>
+    <ScoreDistribution value="walking" recordCount="88" confidence="0.101033295063146"/>
+   </Node>
+   <Node id="3" score="walking" recordCount="1906" defaultChild="7">
+    <CompoundPredicate booleanOperator="surrogate">
+     <SimplePredicate field="acc_mean" operator="greaterOrEqual" value="705.875"/>
+     <SimplePredicate field="acc_sd" operator="greaterOrEqual" value="336.138039401854"/>
+     <SimplePredicate field="alpha" operator="greaterOrEqual" value="14991.625"/>
+     <SimplePredicate field="beta" operator="greaterOrEqual" value="3432.45"/>
+    </CompoundPredicate>
+    <ScoreDistribution value="sitting" recordCount="731" confidence="0.383525708289612"/>
+    <ScoreDistribution value="walking" recordCount="1175" confidence="0.616474291710388"/>
+    <Node id="6" score="sitting" recordCount="590">
+     <CompoundPredicate booleanOperator="surrogate">
+      <SimplePredicate field="alpha" operator="greaterOrEqual" value="295754"/>
+      <SimplePredicate field="acc_sd" operator="lessThan" value="211.060423056521"/>
+      <SimplePredicate field="acc_x" operator="greaterOrEqual" value="1287.875"/>
+     </CompoundPredicate>
+     <ScoreDistribution value="sitting" recordCount="444" confidence="0.752542372881356"/>
+     <ScoreDistribution value="walking" recordCount="146" confidence="0.247457627118644"/>
+    </Node>
+    <Node id="7" score="walking" recordCount="1316" defaultChild="15">
+     <CompoundPredicate booleanOperator="surrogate">
+      <SimplePredicate field="alpha" operator="lessThan" value="295754"/>
+      <SimplePredicate field="acc_sd" operator="greaterOrEqual" value="211.060423056521"/>
+      <SimplePredicate field="acc_x" operator="lessThan" value="1287.875"/>
+     </CompoundPredicate>
+     <ScoreDistribution value="sitting" recordCount="287" confidence="0.218085106382979"/>
+     <ScoreDistribution value="walking" recordCount="1029" confidence="0.781914893617021"/>
+     <Node id="14" score="sitting" recordCount="131" defaultChild="29">
+      <SimplePredicate field="alpha" operator="lessThan" value="49075.65"/>
+      <ScoreDistribution value="sitting" recordCount="73" confidence="0.557251908396946"/>
+      <ScoreDistribution value="walking" recordCount="58" confidence="0.442748091603053"/>
+      <Node id="28" score="sitting" recordCount="98">
+       <CompoundPredicate booleanOperator="surrogate">
+        <SimplePredicate field="acc_mean" operator="lessThan" value="1571.872"/>
+        <SimplePredicate field="acc_sd" operator="lessThan" value="1012.73804291746"/>
+        <SimplePredicate field="acc_x" operator="lessThan" value="415"/>
+        <SimplePredicate field="beta" operator="lessThan" value="75516.8131578947"/>
+       </CompoundPredicate>
+       <ScoreDistribution value="sitting" recordCount="66" confidence="0.673469387755102"/>
+       <ScoreDistribution value="walking" recordCount="32" confidence="0.326530612244898"/>
+      </Node>
+      <Node id="29" score="walking" recordCount="33">
+       <CompoundPredicate booleanOperator="surrogate">
+        <SimplePredicate field="acc_mean" operator="greaterOrEqual" value="1571.872"/>
+        <SimplePredicate field="acc_sd" operator="greaterOrEqual" value="1012.73804291746"/>
+        <SimplePredicate field="acc_x" operator="greaterOrEqual" value="415"/>
+        <SimplePredicate field="beta" operator="greaterOrEqual" value="75516.8131578947"/>
+       </CompoundPredicate>
+       <ScoreDistribution value="sitting" recordCount="7" confidence="0.212121212121212"/>
+       <ScoreDistribution value="walking" recordCount="26" confidence="0.787878787878788"/>
+      </Node>
+     </Node>
+     <Node id="15" score="walking" recordCount="1185">
+      <SimplePredicate field="alpha" operator="greaterOrEqual" value="49075.65"/>
+      <ScoreDistribution value="sitting" recordCount="214" confidence="0.180590717299578"/>
+      <ScoreDistribution value="walking" recordCount="971" confidence="0.819409282700422"/>
+     </Node>
+    </Node>
+   </Node>
+  </Node>
+ </TreeModel>
+</PMML>

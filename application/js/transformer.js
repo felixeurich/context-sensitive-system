@@ -1,5 +1,5 @@
 /** 
-Inspired by http://www.w3schools.com/xsl/xsl_client.asp 
+Inspired by http://www.w3schools.com/xsl/xsl_client.asp
 **/
 function ajaxRequest(method, url, responseType) {
   if (window.ActiveXObject) {

@@ -4,28 +4,28 @@
 	    <xsl:variable name="vAllowedSymbols" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_012345678'"/>
 
 	<xsl:template match="/pmml:PMML">
-		/**PMML**/ 
+		/**PMML**/
 		<xsl:apply-templates/>
-	</xsl:template> 
+	</xsl:template>
 
 	<xsl:template match="pmml:Header">
-		/**Header**/ 
+		/**Header**/
 	</xsl:template>
 
 	<xsl:template match="pmml:MiningModel">
-		/**Classifier**/ 
+		/**Classifier**/
 		<xsl:apply-templates/>
 	</xsl:template>
 
 	<xsl:template match="pmml:Segmentation">
-		/**Forrest**/ 
+		/**Forrest**/
 		<xsl:apply-templates/>
 	</xsl:template>
 
 	<xsl:template match="pmml:Segment">/**Segment <xsl:value-of select="@id"/>**/<xsl:apply-templates/></xsl:template>
 
 	<xsl:template match="pmml:True">
-		true 
+		true
 	</xsl:template>
 
 	<xsl:template match="pmml:TreeModel">
@@ -71,15 +71,15 @@
 	</xsl:template>
 
 	<xsl:template match="pmml:SimplePredicate">
-		function(observation) {return observation.<xsl:value-of 
+		function(observation) {return observation.<xsl:value-of
 		select="translate(@field,
                 translate(@field, $vAllowedSymbols, ''),
-                '_')"	
-		/> 
+                '_')"
+		/>
 
     <xsl:call-template name="operator">
       <xsl:with-param name="operator" select = "@operator" />
-    </xsl:call-template>	
+    </xsl:call-template>
 
    <xsl:value-of select="@value"/> }
 

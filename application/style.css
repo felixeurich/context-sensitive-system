@@ -1,6 +1,10 @@
+body {
+  font-size: 1.0em;
+}
+
 .grid-container {
   display: grid;
-  grid-template-columns: 100px 200px;
+  grid-template-columns: 150px 150px;
   background-color: #fff;
   padding: 0px;
 }
@@ -9,7 +13,6 @@
   border: 0px;
   padding-right: : 5px;
   padding-bottom: 5px;
-  font-size: 15px;
   text-align: left;
 }
 
