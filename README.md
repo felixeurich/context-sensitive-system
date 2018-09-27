@@ -23,8 +23,9 @@ To create the prediction model you need to install R [RStudio](https://www.rstud
 * Put the **application** folder into the **htdocs** of your XAMPP installation
 * Replace the ```host: "192.168.0.192"``` (index.html) with the host of your influxdb
 * Open the website in your browser
-* Collect data by selecting the label (your activity you want to measure) and click recordDataPoint
+* Collect data by selecting the label (your activity you want to measure) and click record
 * Do this for each activity a few times for about 30 seconds
 * Open the script in the R folder with RStudios and run it
 * The script creates the pmml file in your home directory
 * Copy that file into the **models** folder of the application
+* Open the website and test if your activity is detected correctly :)
