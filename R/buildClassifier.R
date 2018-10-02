@@ -57,7 +57,6 @@ createModel <- function(database ="productive", measurementName="orientation", c
   model=train(train[,-c(1,2)], train[,"label"], method = method)
   prediction=predict(model,test[,-c(1,2)])
   
-  print("Seperate selected features (importance of variables): ")
   print(varImp(model, scale=FALSE))
   print(confusionMatrix(prediction,as.factor(test$label)))
   
@@ -67,8 +66,7 @@ createModel <- function(database ="productive", measurementName="orientation", c
   trainCtrl <- trainControl(method = "cv", classProbs = TRUE)
   pmodel=train(train[,-c(1,2)], train[,"label"], method = method, trControl = trainCtrl)
   prediction=predict(pmodel,test[,-c(1,2)])
-  
-  print("Automatic features sleection (importance of variables): ")
+
   print(varImp(pmodel, scale=FALSE))
   print(confusionMatrix(prediction,as.factor(test$label)))
   

@@ -56,7 +56,11 @@ class jActivity {
     //called if alle promises are resolved
     // once we have both we generate the classifier and register the callback
     Promise.all([pmml2js, pmml]).then(p => {
-      this.classifier = p[0](p[1]) //generate and store classifiier
+      //generate and store classifiier
+      //CASE (action, predicate)
+      //---action = (CASE(S) || CLASS)
+      //---predicate = ( observation.alpha < X || true || false)
+      this.classifier = p[0](p[1])
       // then call by interval assuming someone fills the dataset
       window.setInterval(
         function(scope) {
