@@ -29,3 +29,7 @@ To create the prediction model you need to install R (e.g. [RStudio](https://www
 * The script creates the pmml file in your home directory
 * Copy that file into the **models** folder of the application
 * Open the website and test if your activity is detected correctly :)
+
+## Acknowledgment
+
+This project was heavily inspired by [jActivity2PMML](https://github.com/riedel/jActivity2PMML).
