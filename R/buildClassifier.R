@@ -55,39 +55,32 @@ createModel <- function(database ="productive", measurementName="orientation", c
   #featureEvaluation <- rfe(data[,-c(1,2)], data[,1], sizes=c(1:12), rfeControl=rfCtrl)
   #train<-train[,c("label","subject", featureEvaluation$optVariables[1:5])]
   #model=train(train[,-c(1,2)], train[,"label"], method = method)
-  #prediction=predict(model,test[,-c(1,2)])
-  #print(varImp(model, scale=FALSE))
-  #print(confusionMatrix(prediction,as.factor(test$label)))
   
   ##Possibility 2: Automatic feature selection while training
-  train<-data[-holdout,]
   trainCtrl <- trainControl(method = "cv", classProbs = TRUE)
   model=train(train[,-c(1,2)], train[,"label"], method = method, trControl = trainCtrl)
+  
+  ##Possibility 3: Use PCA (data_pca contains standard features and the PCA values)
+  #prep <- preProcess(data[,-c(1,2)],method=c("pca"))
+  #data_pca=cbind(data,predict(prep,data[,-c(1,2)]))
+  #set.seed(1)
+  #holdout <- createDataPartition(data_pca$label, p = .2, list = FALSE, times = 1)
+  #train<-data_pca[-holdout,]
+  #test<-data_pca[holdout,]
+  #trainCtrl <- trainControl(method = "cv", classProbs = TRUE)
+  #model=train(train[,-c(1,2)], train[,"label"], method = method, trControl = trainCtrl)
+  
   prediction=predict(model,test[,-c(1,2)])
   print(varImp(model, scale=FALSE))
   print(confusionMatrix(prediction,as.factor(test$label)))
   
-  ##Posibility 3: Leave one subject out
+  ##Posibility 4: Leave one subject out
   #subjects<-levels(factor(data$subject))
   #data_subject <- vector(mode = "list", length = nlevels(data$subject))
   #for(s in seq(1,nlevels(data$subject)))  data_subject[[s]]<- which(data$subject!=subjects[s])
   #trc = trainControl(index=data_subject)
   #model = train(data[,-c(1,2)], data$label, method = method, trControl=trc)
   #print(confusionMatrix(model))
-  
-  
-  ##Possibility 4: Use PCA (data_pca contains standard features and the PCA values)
-  #prep <- preProcess(data[,-c(1,2)],method=c("pca"))
-  #data_pca=cbind(data,predict(prep,data[,-c(1,2)]))
-  #set.seed(1)
-  #holdout_pca <- createDataPartition(data_pca$label, p = .2, list = FALSE, times = 1)
-  #train_pca<-data_pca[-holdout_pca,]
-  #test_pca<-data_pca[holdout_pca,]
-  #trainCtrl_pca <- trainControl(method = "cv", classProbs = TRUE)
-  #model=train(train_pca[,-c(1,2)], train_pca[,"label"], method = method, trControl = trainCtrl_pca)
-  #prediction_pca=predict(model,test_pca[,-c(1,2)])
-  #print(varImp(model, scale=FALSE))
-  #print(confusionMatrix(prediction_pca,as.factor(test_pca$label)))
   
   saveXML(pmml(model$finalModel),"classifier.pmml")
 }
