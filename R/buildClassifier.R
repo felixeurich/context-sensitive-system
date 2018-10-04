@@ -57,7 +57,7 @@ createModel <- function(database ="productive", measurementName="orientation", c
   #model=train(train[,-c(1,2)], train[,"label"], method = method)
   
   ##Possibility 2: Automatic feature selection while training
-  trainCtrl <- trainControl(method = "cv", classProbs = TRUE)
+  trainCtrl <- trainControl(method = "cv")
   model=train(train[,-c(1,2)], train[,"label"], method = method, trControl = trainCtrl)
   
   ##Possibility 3: Use PCA (data_pca contains standard features and the PCA values)
@@ -67,7 +67,7 @@ createModel <- function(database ="productive", measurementName="orientation", c
   #holdout <- createDataPartition(data_pca$label, p = .2, list = FALSE, times = 1)
   #train<-data_pca[-holdout,]
   #test<-data_pca[holdout,]
-  #trainCtrl <- trainControl(method = "cv", classProbs = TRUE)
+  #trainCtrl <- trainControl(method = "cv")
   #model=train(train[,-c(1,2)], train[,"label"], method = method, trControl = trainCtrl)
   
   prediction=predict(model,test[,-c(1,2)])

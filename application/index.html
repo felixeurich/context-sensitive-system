@@ -139,7 +139,7 @@
 				console.log("start recording");
 
 				//Date.now() return the millis since 1970
-				// greatest integer which is smaller than Date.now()/1000
+				//greatest integer which is smaller than Date.now()/1000
 				measurement_label = Math.floor(Date.now() / 1000) + "";
 				document.getElementById("debug").innerHTML = "Recording... (" + data_count + ")";
 
@@ -232,7 +232,6 @@
 						console.log("Write current data point into db. Motion values: " + currentDataPoint.k + " Orientation values: " + currentDataPoint.n);
 						data_count++;
 
-
 						label = document.getElementById("label").value;
 						subject = document.getElementById("subject").value;
 
@@ -267,7 +266,6 @@
 								timestamp: (Date.now() * 1000000)
 							})
 							.then(function() {
-								console.log("successfully wrote to db");
 								document.getElementById("debug").innerHTML = "Recorded... (" + data_count + ")";
 							});
 					}

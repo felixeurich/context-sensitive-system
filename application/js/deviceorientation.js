@@ -4,10 +4,12 @@ class deviceorientation {
     window.addEventListener('deviceorientation', (...args) => this.deviceorientationListener(...args))
   }
 
+  //save events from deviceorientation into dataset.orientation
   deviceorientationListener(event) {
     (this.dataset.orientation = this.dataset.orientation || []).push(event);
   }
 
+  //retrieve collected features
   features() {
     var f = {}
     if ((this.dataset.orientation = this.dataset.orientation || []).length > 0) {

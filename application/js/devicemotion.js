@@ -4,11 +4,13 @@ class devicemotion {
     window.addEventListener('devicemotion', (...args) => this.devicemotionListener(...args))
   }
 
+  //save events from devicemotion into dataset.acceleration
   devicemotionListener(event) {
     // check if(this.dataset.acceleration) {return this.dataset.acceleration;} else {return [];}
     (this.dataset.acceleration = this.dataset.acceleration || []).push(event);
   }
 
+  //retrieve collected features
   features() {
     var f = {}
     if ((this.dataset.acceleration = this.dataset.acceleration || []).length > 0) {

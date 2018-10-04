@@ -26,6 +26,7 @@ class jActivity {
           }
         )
       }
+
       $.ajax({
         type: "GET",
         url: (this.base + "resources/pmml2js.xsl"),
@@ -44,6 +45,7 @@ class jActivity {
         alert(textStatus)
         resolve(null)
       }
+
       //ajax request to get classifier as pmml
       $.ajax({
         type: "GET",
