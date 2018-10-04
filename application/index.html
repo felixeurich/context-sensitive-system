@@ -41,6 +41,14 @@
 			<div class="grid-item"></br></div>
 			<div class="grid-item"></div>
 
+			<div class="grid-item">Robust mode</div>
+			<div class="grid-item">
+				<label class="switch">
+					<input type="checkbox" id="robust">
+					<span class="slider round"></span>
+				</label>
+			</div>
+
 			<div class="grid-item"><b>Detected Activity:</b></div>
 			<div class="grid-item"> <label id="activity">undefined</label></div>
 		</div>
@@ -270,7 +278,9 @@
 	var lastClass;
 	var activityCallback = function(activity) {
 		console.log("react to classification which classify to: " + activity.result);
-		if (activity.result === lastClass) {
+
+		var useRobustMode = document.getElementById('robust').checked;
+		if ((activity.result === lastClass || lastClass == null) || !useRobustMode) {
 			document.getElementById("activity").innerHTML = activity.result;
 			switch (activity.result) {
 				case "walking":

@@ -1,4 +1,4 @@
-createModel <- function(database ="productive", measurementName="orientation", classes=c("walking","sitting"), method="rpart2")
+createModel <- function(database ="productive", measurementName="orientation", classes=c("walking","sitting"), method="rpart1SE")
 {
   library(influxdbr2)
   library(xts)
